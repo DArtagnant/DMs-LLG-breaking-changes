@@ -1,23 +1,57 @@
-name: LaTeX-compile
+name: Check PDF and TEX hash
 
-on: [push]
+on:
+  push:
+    branches:
+      - '**'  # S'exécute sur tous les push
 
 jobs:
-  test-git:
+  check_hashes:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
-      - name: Configure Git
-        run: |
-          git config --global user.name 'LaTeX-Bot'
-          git config --global user.email 'bot@github.com'
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Commit changes
-        run: |
-          git commit -m "Test commit" --allow-empty
+    - name: Run hash check script
+      run: |
+        # Fichier cache
+        CACHE_FILE="hashes_cache.txt"
 
-      - name: Push changes
-        run: |
-          git push
+        # Si le fichier cache n'existe pas, le créer
+        if [ ! -f "$CACHE_FILE" ]; then
+          touch "$CACHE_FILE"
+        fi
+
+        # Fonction pour calculer le hash SHA256 d'un fichier
+        calculate_hash() {
+          sha256sum "$1" | cut -d ' ' -f 1
+        }
+
+        # Lire le contenu actuel du fichier cache dans une variable
+        CACHE_CONTENT=$(cat "$CACHE_FILE")
+
+        # Lister tous les fichiers .pdf dans le repo
+        find . -type f -name "*.pdf" | while read pdf_file; do
+          # Trouver le fichier .tex associé
+          tex_file="${pdf_file%.pdf}.tex"
+          
+          if [ -f "$tex_file" ]; then
+            # Calculer les hash des fichiers .pdf et .tex
+            pdf_hash=$(calculate_hash "$pdf_file")
+            tex_hash=$(calculate_hash "$tex_file")
+            
+            # Construire l'entrée à vérifier
+            relative_path="${pdf_file%.pdf}"  # Chemin sans l'extension
+            entry="${relative_path} : ${tex_hash} : ${pdf_hash}"
+            
+            # Vérifier si l'entrée est déjà dans le cache
+            if ! grep -Fxq "$entry" "$CACHE_FILE"; then
+              # Ajouter l'entrée au cache si elle n'existe pas
+              echo "$entry" >> "$CACHE_FILE"
+              echo "Nouvelle entrée ajoutée au cache : $entry"
+            else
+              echo "L'entrée existe déjà dans le cache : $entry"
+            fi
+          fi
+        done
