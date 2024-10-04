@@ -11,7 +11,7 @@ jobs:
     steps:
 
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Run hash check script
       run: |
@@ -55,3 +55,15 @@ jobs:
             fi
           fi
         done
+
+    - name: Configure Git
+      run: |
+        git config --global user.name 'LaTeX-Bot'
+        git config --global user.email 'bot@github.com'
+    - name: Commit changes
+      run: |
+        git add --all
+        git commit -m "Test commit" --allow-empty
+    - name: Push changes
+      run: |
+        git push
