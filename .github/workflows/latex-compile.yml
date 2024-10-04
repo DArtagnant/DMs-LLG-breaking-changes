@@ -1,0 +1,23 @@
+name: LaTeX-compile
+
+on: [push]
+
+jobs:
+  test-git:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'LaTeX-Bot'
+          git config --global user.email 'bot@github.com'
+
+      - name: Commit changes
+        run: |
+          git commit -m "Test commit" --allow-empty
+
+      - name: Push changes
+        run: |
+          git push
