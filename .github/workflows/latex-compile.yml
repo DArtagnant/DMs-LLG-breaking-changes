@@ -49,7 +49,7 @@ jobs:
             # Vérifier si l'entrée est déjà dans le cache
             if ! grep -Fxq "$entry" "$ALREADY_UPDATED_CACHE"; then
               # Ajouter l'entrée au cache si elle n'existe pas
-              echo "$entry" >> "$SHOULD_BE_UPDATED_CACHE"
+              echo "${relative_path}" >> "$SHOULD_BE_UPDATED_CACHE"
               echo "Nouvelle entrée ajoutée au cache des fichiers à modifier : $entry"
             else
               echo "L'entrée existe déjà dans le cache des fichiers déjà modifiés: $entry"
