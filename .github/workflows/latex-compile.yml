@@ -49,9 +49,9 @@ jobs:
             if ! grep -Fxq "$entry" "$CACHE_FILE"; then
               # Ajouter l'entrée au cache si elle n'existe pas
               echo "$entry" >> "$CACHE_FILE"
-              echo "Nouvelle entrée ajoutée au cache : $entry"
+              echo "Nouvelle entrée ajoutée au cache des fichiers à modifier : $entry"
             else
-              echo "L'entrée existe déjà dans le cache : $entry"
+              echo "L'entrée existe déjà dans le cache des fichiers déjà modifiés: $entry"
             fi
           fi
         done
