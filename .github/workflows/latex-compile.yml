@@ -16,20 +16,21 @@ jobs:
     - name: Run hash check script
       run: |
         # Fichier cache
-        CACHE_FILE="hashes_cache.txt"
+        ALREADY_UPDATED_CACHE="already-updated.cache"
+        SHOULD_BE_UPDATED_CACHE="should-be-updated.cache"
 
-        # Si le fichier cache n'existe pas, le créer
-        if [ ! -f "$CACHE_FILE" ]; then
-          touch "$CACHE_FILE"
+        # Si le fichier already-updated cache n'existe pas, le créer
+        if [ ! -f "$ALREADY_UPDATED_CACHE" ]; then
+          touch "$ALREADY_UPDATED_CACHE"
         fi
+
+        # Vide/cree le fichier should-be-updated cache
+        : > "$SHOULD_BE_UPDATED_CACHE"
 
         # Fonction pour calculer le hash SHA256 d'un fichier
         calculate_hash() {
           sha256sum "$1" | cut -d ' ' -f 1
         }
-
-        # Lire le contenu actuel du fichier cache dans une variable
-        CACHE_CONTENT=$(cat "$CACHE_FILE")
 
         # Lister tous les fichiers .pdf dans le repo
         find . -type f -name "*.pdf" | while read pdf_file; do
@@ -46,9 +47,9 @@ jobs:
             entry="${relative_path} : ${tex_hash} : ${pdf_hash}"
             
             # Vérifier si l'entrée est déjà dans le cache
-            if ! grep -Fxq "$entry" "$CACHE_FILE"; then
+            if ! grep -Fxq "$entry" "$ALREADY_UPDATED_CACHE"; then
               # Ajouter l'entrée au cache si elle n'existe pas
-              echo "$entry" >> "$CACHE_FILE"
+              echo "$entry" >> "$SHOULD_BE_UPDATED_CACHE"
               echo "Nouvelle entrée ajoutée au cache des fichiers à modifier : $entry"
             else
               echo "L'entrée existe déjà dans le cache des fichiers déjà modifiés: $entry"
